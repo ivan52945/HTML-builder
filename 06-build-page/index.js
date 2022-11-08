@@ -49,7 +49,7 @@ async function buildHTMLBundle(template, componentsFolder, distName, distFile) {
 	const bundleStream = await fs.createWriteStream(path.resolve(__dirname, distName, distFile));
 
 	const tempFileString = await readFile(path.resolve(__dirname, template));
-	const tempFileBundle = tempFileString.toString().replace(/\}{2}\r\n/gm, ".html}}").replace(/[\{,\}]{1,}/gm, "|").split("|")
+	const tempFileBundle = tempFileString.toString().replace(/\}{2}/gm, ".html}}").replace(/[\{,\}]{1,}/gm, "||").split("||");
 
 	for (let part of tempFileBundle) {
 		if (part.endsWith(".html")) {
