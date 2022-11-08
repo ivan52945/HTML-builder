@@ -13,7 +13,7 @@ const wrStream = fs.WriteStream(dirCompPath);
 const files = fsPr.readdir(dirSrcPath, { encoding: "utf-8", withFileTypes: true });
 
 files.then(function copyFIles(files) {
-	const CSSFiles = files.filter((file) => file.isFile() && (file.name.lastIndexOf(".css") != -1));
+	const CSSFiles = files.filter((file) => file.isFile() && (file.name.endsWith(".css")));
 
 	for (let file of CSSFiles) {
 		const srcFileStream = fs.ReadStream(path.resolve(dirSrcPath, file.name));

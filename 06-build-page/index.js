@@ -20,7 +20,7 @@ async function remakeDir(nameDir) {
 	await fs.promises.mkdir(pathDir, { recursive: true });
 }
 
-function readFile(nameFile, change) {
+function readFile(nameFile) {
 	return new Promise(function (resolve, reject) {
 		fs.readFile(path.resolve(__dirname, nameFile), function (err, data) {
 			resolve(data);
@@ -28,11 +28,22 @@ function readFile(nameFile, change) {
 	});
 }
 
+function addFromFile(writeStream, file) {
+	return new Promise(function (resolve, reject) {
+		const filePath = path.resolve(__dirname, file);
+
+		const readStream = fs.ReadStream(filePath);
+
+		readStream.on('data', (part) => { writeStream.write(part) });
+		readStream.on('end', () => { resolve(); });
+	});
+}
+
 async function buildHTMLBundle(template, componentsFolder, distName, distFile) {
 	const componentsHTMLPath = path.resolve(__dirname, componentsFolder);
 
 	const files = await fs.promises.readdir(componentsHTMLPath, { encoding: "utf-8", withFileTypes: true });
-	const filesHTML = files.filter((file) => file.isFile() && (file.name.lastIndexOf(".html") != -1));
+	const filesHTML = files.filter((file) => file.isFile() && (file.name.endsWith(".html")));
 
 	const templateSteam = await fs.createReadStream(path.resolve(__dirname, template));
 	const bundleStream = await fs.createWriteStream(path.resolve(__dirname, distName, distFile));
@@ -41,7 +52,7 @@ async function buildHTMLBundle(template, componentsFolder, distName, distFile) {
 	const tempFileBundle = tempFileString.toString().replace(/\}{2}\r\n/gm, ".html}}").replace(/[\{,\}]{1,}/gm, "|").split("|")
 
 	for (let part of tempFileBundle) {
-		if (part.lastIndexOf(".html") != -1) {
+		if (part.endsWith(".html")) {
 			bundleStream.write(await readFile(path.join(componentsFolder, part)));
 		}
 		else bundleStream.write(part);
@@ -56,7 +67,7 @@ async function buildCSSBundle(srcDir, nameDir, nameDist) {
 	const wrStream = await fs.WriteStream(dirCompPath);
 
 	const files = await fsPr.readdir(dirSrcPath, { encoding: "utf-8", withFileTypes: true });
-	const CSSFiles = files.filter((file) => file.isFile() && (file.name.lastIndexOf(".css") != -1));
+	const CSSFiles = files.filter((file) => file.isFile() && (file.name.endsWith(".css")));
 
 	for (let file of CSSFiles) {
 
